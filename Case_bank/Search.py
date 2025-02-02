@@ -79,8 +79,22 @@ def find_most_relevant(query_embedding, embeddings, top_n=3):
 def search(query_dict):
     """Main search function that coordinates the embedding and matching process."""
     try:
-        # Construct search query
-        query = f"{query_dict['client']} {query_dict['target']} {query_dict['transaction_type']}"
+        # Construct search query with all available information
+        query_parts = []
+        if query_dict.get('client'):
+            query_parts.append(f"{query_dict['client']}")
+            if query_dict.get('client_location'):
+                query_parts.append(f"({query_dict['client_location']})")
+        
+        if query_dict.get('target'):
+            query_parts.append(f"{query_dict['target']}")
+            if query_dict.get('target_location'):
+                query_parts.append(f"({query_dict['target_location']})")
+                
+        if query_dict.get('transaction_type'):
+            query_parts.append(query_dict['transaction_type'])
+            
+        query = " ".join(query_parts)
         log_debug(f"Processing query: {query}")
         
         # Get query embedding

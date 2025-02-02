@@ -37,18 +37,17 @@ def chat():
     try:
         data = request.get_json()
         user_message = data.get('message', '')
+        session_id = data.get('session_id')
 
-        # Check if this is a new session or greeting
-        if 'session_id' not in session or user_message.lower() in ['hi', 'hello', 'hey']:
-            # Generate new session ID
-            session['session_id'] = str(uuid.uuid4())
-            # Clean up any existing state file
-            state_file = f"/tmp/conversation_state_{session['session_id']}.json"
-            if os.path.exists(state_file):
-                os.remove(state_file)
+        if not session_id:
+            session_id = str(uuid.uuid4())
+            session['session_id'] = session_id
 
         # Process the message
-        response = process_message(session['session_id'], user_message)
+        response = process_message(session_id, user_message)
+        
+        # Add session ID to response
+        response['session_id'] = session_id
         return jsonify(response)
 
     except Exception as e:
@@ -56,7 +55,8 @@ def chat():
         return jsonify({
             "type": "error",
             "message": f"ERROR: {str(e)}",
-            "progress": 0
+            "progress": 0,
+            "session_id": session.get('session_id')
         })
 
 @app.route('/reset', methods=['POST'])

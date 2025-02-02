@@ -12,9 +12,11 @@ class ConversationManager:
         self.memory = ConversationBufferMemory()
         self.conversation_state = "gathering_info"  # States: gathering_info, searching_docs, refining
         self.required_info = {
-            "topic": None,
-            "specific_requirements": None,
-            "context_gathered": False
+            "client_name": None,
+            "client_location": None,
+            "target_name": None,
+            "target_location": None,
+            "leading_partner": None
         }
         
         # Custom prompt for information gathering

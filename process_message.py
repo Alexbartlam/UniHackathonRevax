@@ -153,22 +153,21 @@ def save_state(session_id, data):
 
 def is_state_complete(state):
     """Check if we have enough useful information to proceed"""
-    # Required fields (must have at least one of these pairs)
-    required_pairs = [
-        ("client_name", "target_name"),  # Need both client and target
+    required_fields = [
+        "client_name",
+        "target_name"
     ]
     
-    # Check if we have at least one complete pair
-    has_required = any(
-        state[pair[0]] is not None and state[pair[0]] != "" and
-        state[pair[1]] is not None and state[pair[1]] != ""
-        for pair in required_pairs
+    # Must have client and target name
+    has_required = all(
+        state[field] is not None and state[field] != ""
+        for field in required_fields
     )
     
     # Count how many fields have values
     filled_fields = sum(1 for value in state.values() if value is not None and value != "")
     
-    # Consider state complete if we have the required pair and at least 3 fields total
+    # Consider state complete if we have required fields and at least 3 fields total
     return has_required and filled_fields >= 3
 
 def process_message(session_id, user_input):

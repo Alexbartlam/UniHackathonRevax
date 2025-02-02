@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revax AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <script>
+        function goToConversation() {
+            // Hide branding and buttons, show chat interface
+            document.querySelector(".branding").style.display = "none";
+            document.querySelector(".button-container").style.display = "none";
+            document.querySelector(".progress-container").style.display = "block";
+            document.getElementById("response_box").style.display = "block";
+            document.querySelector(".input-form").style.display = "flex";
+        }
+
+        function appendMessage(type, content) {
+            const responseBox = document.getElementById('response_box');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add(type + "-message");
+            messageDiv.textContent = content;
+            responseBox.appendChild(messageDiv);
+            responseBox.scrollTop = responseBox.scrollHeight;
+            return messageDiv;
+        }
+
+        function sendUserInput(event) {
+            event.preventDefault();  // Prevent form submission
+            const userInput = document.getElementById("user_input").value;
+            
+            if (!userInput.trim()) {  // Check if input is empty or just whitespace
+                return;
+            }
+
+            // Create user message
+            appendMessage("user", userInput);
+
+            // Show loading state
+            const loadingMessage = appendMessage("ai", "Loading...");
+
+            // Send to backend
+            fetch("/chat", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: userInput,
+                    session_id: getCurrentSessionId()
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Remove loading message
+                loadingMessage.remove();
+
+                // Update progress bar
+                if (data.progress !== undefined) {
+                    updateProgress(data.progress);
+                }
+
+                if (data.type === "search_results") {
+                    // Display search results in a structured way
+                    appendSearchResults(data.results);
+                    appendMessage("ai", data.message);
+                } else if (data.type === "gathering_info") {
+                    appendMessage("ai", data.message);
+                } else if (data.type === "final_analysis") {
+                    appendMessage("ai", data.message);
+                } else {
+                    // Display normal message
+                    appendMessage("ai", data.message || data.raw_response || "No response received");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingMessage.textContent = "Error: " + error.message;
+            });
+
+            // Clear input
+            document.getElementById("user_input").value = "";
+        }
+
+        function appendSearchResults(results) {
+            const resultBox = document.getElementById("response_box");
+            const resultsDiv = document.createElement("div");
+            resultsDiv.classList.add("search-results");
+
+            results.forEach(result => {
+                const resultItem = document.createElement("div");
+                resultItem.classList.add("search-result-item");
+                resultItem.innerHTML = `
+                    <div class="result-header">
+                        <span class="file-name">${result.file_name}</span>
+                        <span class="slide-number">Slide ${result.slide_number}</span>
+                    </div>
+                    <div class="result-content">${result.text}</div>
+                `;
+                resultsDiv.appendChild(resultItem);
+            });
+
+            resultBox.appendChild(resultsDiv);
+        }
+
+        function getCurrentSessionId() {
+            let sessionId = localStorage.getItem('session_id');
+            if (!sessionId) {
+                sessionId = 'session_' + Date.now();
+                localStorage.setItem('session_id', sessionId);
+            }
+            return sessionId;
+        }
+
+        function updateProgress(progress) {
+            const progressBar = document.querySelector('.progress-fill');
+            const progressLabel = document.querySelector('.progress-label');
+            const progressContainer = document.querySelector('.progress-container');
+            
+            progressContainer.style.display = 'block';
+            progressBar.style.width = `${progress}%`;
+            progressLabel.textContent = `${Math.round(progress)}%`;
+        }
+
+        function resetConversation() {
+            fetch('/reset', {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('response_box').innerHTML = '';
+                    updateProgress(0);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</head>
+<body>
+    <!-- Branding -->
+    <div class="branding">Revax AI</div>
+
+    <!-- Add this after the branding div -->
+    <div class="progress-container" style="display: none;">
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        <div class="progress-label">0%</div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="button-container">
+        <button class="primary-button" onclick="goToConversation()">Setup</button>
+        <button class="secondary-button">Funding</button>
+        <button class="secondary-button">Acquisition</button>
+        <button class="secondary-button">Management Incentives</button>
+        <button class="secondary-button">Cash Repatriation</button>
+        <button class="secondary-button">Exit</button>
+    </div>
+
+    <!-- Chat Area -->
+    <div id="response_box" class="chat-area" style="display: none;"></div>
+
+    <!-- Input Form -->
+    <form onsubmit="sendUserInput(event)" class="input-form" style="display: none;">
+        <div class="input-container">
+            <input type="text" id="user_input" name="user_input" placeholder="Talk to Revax" required>
+            <div class="button-group">
+                <button class="submit-button" type="submit">
+                    <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+                <button type="button" class="reset-button" onclick="resetConversation()">
+                    <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                        <polyline points="1 4 1 10 7 10"></polyline>
+                        <polyline points="23 20 23 14 17 14"></polyline>
+                        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Footer -->
+    <div class="footer">Revax - All rights reserved</div>
+</body>
+</html>

@@ -5,7 +5,7 @@ from pptx import Presentation
 from mistralai import Mistral
 
 # Mistral API Setup
-api_key = os.environ["MISTRAL_API_KEY"]
+api_key = os.environ.get("MISTRAL_API_KEY", "9zMRdnt9VJz3fprSFW4ydGkKmC2sdYMF")
 model = "mistral-embed"
 client = Mistral(api_key=api_key)
 

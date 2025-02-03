@@ -63,15 +63,31 @@ def chat():
 def reset_conversation():
     """Reset the conversation state"""
     try:
-        if 'session_id' in session:
-            state_file = f"/tmp/conversation_state_{session['session_id']}.json"
+        session_id = request.get_json().get('session_id')
+        if session_id:
+            # Clear session file
+            state_file = f"/tmp/conversation_state_{session_id}.json"
             if os.path.exists(state_file):
                 os.remove(state_file)
-        session.clear()
-        return jsonify({"status": "success"})
+            
+            # Clear session data
+            session.clear()
+            
+            return jsonify({
+                "status": "success",
+                "message": "Conversation reset successfully"
+            })
+        else:
+            return jsonify({
+                "status": "error",
+                "message": "No session ID provided"
+            })
     except Exception as e:
         app.logger.error(f"Reset error: {str(e)}")
-        return jsonify({"status": "error", "message": str(e)})
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        })
 
 @app.route('/health', methods=['GET'])
 def health_check():

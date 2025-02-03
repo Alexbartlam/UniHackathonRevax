@@ -128,17 +128,41 @@
         }
 
         function resetConversation() {
+            const sessionId = getCurrentSessionId();
+            
             fetch('/reset', {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: sessionId
+                })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
+                    // Clear chat history
                     document.getElementById('response_box').innerHTML = '';
+                    // Reset progress bar
                     updateProgress(0);
+                    // Clear local storage
+                    localStorage.removeItem('session_id');
+                    // Generate new session ID
+                    getCurrentSessionId();
+                    // Clear input field
+                    document.getElementById('user_input').value = '';
+                    // Optional: Add system message
+                    appendMessage('assistant', 'Conversation has been reset. How can I help you?');
+                } else {
+                    console.error('Reset failed:', data.message);
+                    appendMessage('assistant', 'Failed to reset conversation. Please try again.');
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                appendMessage('assistant', 'Error resetting conversation. Please try again.');
+            });
         }
     </script>
 </head>

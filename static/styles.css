@@ -94,14 +94,94 @@ button, .primary-button {
 }
 
 .bottom-box {
-    height: 66.67vh;
-    padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    align-items: center;  /* Center content horizontally */
+    padding: 2rem;
     width: 100%;
     box-sizing: border-box;
+}
+
+/* Search Results Layout */
+.search-results {
+    width: 80%;  /* Limit width to 80% of container */
+    max-width: 800px;  /* Maximum width */
+    margin: 0 auto;  /* Center the results container */
+}
+
+.result-group {
+    display: flex;
+    gap: 1.5rem;  /* Consistent spacing between boxes */
+    margin-bottom: 1.5rem;
+    justify-content: center;  /* Center the boxes */
+}
+
+.result-card {
+    width: 300px;  /* Fixed width for consistency */
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    flex: 0 0 auto;
+}
+
+.filename-box {
+    width: 200px;
+    height: 282px;  /* Aspect ratio similar to A4 paper (1:√2) */
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;  /* Prevent image overflow */
+}
+
+.document-preview {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;  /* Maintain aspect ratio */
+}
+
+.file-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.page-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+}
+
+/* Text Alignment */
+.filename {
+    text-align: left;
+}
+
+.match, .similarity {
+    text-align: right;
+    min-width: 60px;  /* Ensure consistent width for percentages */
+}
+
+/* Remove unnecessary styling */
+.result-card {
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.page-info {
+    background: none;
+    border: none;
+}
+
+.analyze-button {
+    margin: 2rem auto 0;
+    display: block;
 }
 
 /* Chat Interface Styles */
@@ -374,51 +454,6 @@ button, .primary-button {
     margin: 0;
     padding: 10px;
     background-color: #f8f9fa;
-    border-radius: 6px;
-}
-
-/* Search Results Styling */
-.search-results {
-    padding: 15px;
-}
-
-.search-result {
-    background-color: #f8f9fa;
-    border: 1px solid #D1D5DB;
-    border-radius: 6px;
-    padding: 12px;
-    margin-bottom: 10px;
-}
-
-.search-result h3 {
-    margin: 0 0 10px 0;
-    font-size: 1rem;
-    color: #333;
-}
-
-.search-result p {
-    margin: 3px 0;
-    font-size: 0.9rem;
-    color: #4B5563;
-}
-
-.result-file {
-    font-weight: 600;
-}
-
-.result-similarity {
-    color: #059669;
-}
-
-.search-result:last-child {
-    margin-bottom: 0;
-}
-
-.error {
-    color: #dc3545;
-    padding: 10px;
-    margin: 10px 0;
-    background-color: #f8d7da;
     border-radius: 6px;
 }
 

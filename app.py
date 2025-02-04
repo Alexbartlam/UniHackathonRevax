@@ -11,6 +11,9 @@ from Analyse import generate_bullet_points
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from chat_manager import ChatManager
+import fitz
+from io import BytesIO
+import base64
 
 # Configure logging
 logging.basicConfig(
@@ -191,6 +194,78 @@ def analyze():
             "status": "error",
             "message": str(e)
         }), 400
+
+@app.route('/get_pdf_page/<path:pdf_path>/<int:page_number>')
+def get_pdf_page(pdf_path, page_number):
+    try:
+        # Debug prints
+        print("\nPDF Preview Request:")
+        print(f"Raw PDF path: {pdf_path}")
+        print(f"Page number: {page_number}")
+        
+        # Clean the filename and ensure it's just the filename, not a path
+        pdf_path = os.path.basename(pdf_path.replace('%20', ' '))
+        print(f"Cleaned PDF path: {pdf_path}")
+        
+        # List contents of target directory
+        target_dir = '/var/www/html/Case_bank/Target'
+        print(f"\nContents of {target_dir}:")
+        try:
+            for f in os.listdir(target_dir):
+                print(f"- {f}")
+        except Exception as e:
+            print(f"Error listing directory: {str(e)}")
+        
+        # Use the same base directory as Search.py
+        full_path = os.path.join('/var/www/html/Case_bank/Target', pdf_path)
+        print(f"Attempting to access: {full_path}")
+        
+        # Check file existence
+        if not os.path.exists(full_path):
+            print(f"File not found at: {full_path}")
+            return jsonify({'error': f'PDF file not found at {full_path}'}), 404
+            
+        # Check file permissions
+        try:
+            with open(full_path, 'rb') as f:
+                pass
+            print("File is readable")
+        except Exception as e:
+            print(f"Permission error: {str(e)}")
+            return jsonify({'error': f'Permission denied: {str(e)}'}), 500
+        
+        # Try to open PDF
+        try:
+            doc = fitz.open(full_path)
+            page = doc[page_number]
+            pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+            
+            # Save to a temporary file first
+            temp_path = "/tmp/temp_preview.png"
+            pix.save(temp_path)
+            
+            # Read the temporary file
+            with open(temp_path, 'rb') as f:
+                img_data = f.read()
+            
+            # Clean up
+            os.remove(temp_path)
+            
+            # Convert to base64
+            img_base64 = base64.b64encode(img_data).decode()
+            return jsonify({'image': img_base64})
+            
+        except Exception as e:
+            print(f"Error processing PDF: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({'error': str(e)}), 500
+            
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     # Ensure tmp directory exists

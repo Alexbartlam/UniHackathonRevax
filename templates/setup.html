@@ -223,40 +223,79 @@
                 // Update search results
                 if (data.search_results && data.search_results.length > 0) {
                     const searchResults = data.search_results.map(result => {
-                        const pageMap = new Map();
-                        result.pages.forEach(page => {
-                            if (!pageMap.has(page.slide_number)) {
-                                pageMap.set(page.slide_number, page);
-                            }
-                        });
+                        console.log("Processing result:", result); // Debug log
                         
-                        let uniquePages = Array.from(pageMap.values());
-                        uniquePages.sort((a, b) => b.similarity - a.similarity);
-                        const highestSimilarity = uniquePages[0]?.similarity || 0;
-                        uniquePages = uniquePages.filter(page => 
-                            page.similarity >= highestSimilarity - 0.1
-                        );
-                        uniquePages.sort((a, b) => a.slide_number - b.slide_number);
-
-                        const pages = uniquePages.map(page => `
+                        const pages = result.pages.map(page => `
                             <div class="page-info">
                                 <span>Slide ${page.slide_number}</span>
                                 <span>${(page.similarity * 100).toFixed(1)}%</span>
                             </div>
                         `).join('');
 
+                        const safeFileName = result.file_name.replace(/[^a-zA-Z0-9]/g, '_'); // Create safe ID
+                        
                         return `
-                            <div class="result-card">
-                                <div class="file-info">
-                                    <span class="filename">${result.file_name}</span>
-                                    <span class="match">${(result.overall_similarity * 100).toFixed(1)}%</span>
+                            <div class="result-group">
+                                <div class="result-card">
+                                    <div class="file-info">
+                                        <span class="filename">${result.file_name}</span>
+                                        <span class="match">${(result.overall_similarity * 100).toFixed(1)}%</span>
+                                    </div>
+                                    <div class="pages-container">
+                                        ${pages}
+                                    </div>
                                 </div>
-                                <div class="pages-container">
-                                    ${pages}
+                                <div class="filename-box">
+                                    <img src="" alt="Loading PDF preview..." class="document-preview" id="preview_${safeFileName}">
                                 </div>
                             </div>
                         `;
                     }).join('');
+
+                    // After adding results to DOM, fetch previews
+                    data.search_results.forEach(result => {
+                        console.log("Original file_name:", result.file_name); // Log original filename
+                        
+                        const safeFileName = result.file_name.replace(/[^a-zA-Z0-9]/g, '_');
+                        console.log("Safe file_name:", safeFileName); // Log safe filename
+                        
+                        // Use the simplified filename format with explicit transformation steps
+                        let filename = result.file_name;
+                        filename = filename.replace(" copy", "");
+                        filename = filename.replace(/ /g, "_");
+                        filename = filename + ".pdf";  // Ensure .pdf extension
+                        
+                        console.log("Final filename for fetch:", filename); // Log final filename
+                        console.log("Full fetch URL:", `/get_pdf_page/${encodeURIComponent(filename)}/0`); // Log full URL
+                        
+                        fetch(`/get_pdf_page/${encodeURIComponent(filename)}/0`)
+                            .then(response => {
+                                console.log("Response status:", response.status); // Log response status
+                                console.log("Response headers:", response.headers); // Log response headers
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log("Received data:", data); // Log received data
+                                if (data.image) {
+                                    const img = document.getElementById(`preview_${safeFileName}`);
+                                    if (img) {
+                                        img.src = `data:image/png;base64,${data.image}`;
+                                    } else {
+                                        console.error("Image element not found:", `preview_${safeFileName}`);
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error loading PDF preview:', error);
+                                const img = document.getElementById(`preview_${safeFileName}`);
+                                if (img) {
+                                    img.alt = "Error loading preview";
+                                }
+                            });
+                    });
 
                     bottomBox.innerHTML = `
                         <div class="search-results">

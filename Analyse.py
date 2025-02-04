@@ -26,6 +26,7 @@ Setup Information:
 - Target Location: {data['target_location']}
 
 *** You MUST reply in this format *** Use the context of the submitted cases to understand how to populate this template.
+*** Do not repeat the input information or slide data in your response. And do not provide any information after the response format.
 *** COMPULSORY RESPONSE FORMAT ***:
 
 - Establishing the aquisition structure:

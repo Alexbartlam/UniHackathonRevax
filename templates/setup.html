@@ -197,29 +197,13 @@
         }
 
         function handleSetupSubmit() {
-            console.log("handleSetupSubmit function called");
-
             const setupData = {
-                client_name: document.getElementById('client_name')?.value || "",
-                client_location: document.getElementById('client_location')?.value || "",
-                target_name: document.getElementById('target_name')?.value || "",
-                target_location: document.getElementById('target_location')?.value || "",
-                lead_partner: document.getElementById('lead_partner')?.value || ""
+                client_name: document.getElementById('client_name').value,
+                client_location: document.getElementById('client_location').value,
+                target_name: document.getElementById('target_name').value,
+                target_location: document.getElementById('target_location').value,
+                lead_partner: document.getElementById('lead_partner').value
             };
-
-            console.log("Collected setup data:", setupData);
-
-            const topBox = document.getElementById('response_box_top');
-            const bottomBox = document.querySelector('.bottom-box');
-
-            if (!topBox || !bottomBox) {
-                console.error("Required elements not found!");
-                return;
-            }
-
-            // Show loading states
-            topBox.innerHTML = '<div class="loading">Generating analysis...</div>';
-            bottomBox.innerHTML = '<div class="loading">Searching for relevant cases...</div>';
 
             fetch('/store-setup', {
                 method: 'POST',
@@ -230,24 +214,15 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log("Full response:", data);  // Debug log
-                const topBox = document.getElementById('response_box_top');
                 const bottomBox = document.querySelector('.bottom-box');
                 
-                console.log("Found bottomBox:", bottomBox); // Check if we found the element
+                // Store setup data globally for analysis
+                window.currentSetupData = setupData;
+                window.searchResults = data.search_results;
 
-                // Update analysis results
-                if (data.analysis_results) {
-                    topBox.innerHTML = `<div class="analysis-results">${data.analysis_results}</div>`;
-                }
-
-                // Update search results - with debug logging
+                // Update search results
                 if (data.search_results && data.search_results.length > 0) {
                     const searchResults = data.search_results.map(result => {
-                        console.log("Processing result:", result);  // Debug log
-                        console.log("Pages before dedup:", result.pages);  // Debug log
-                        
-                        // Deduplicate pages and filter by similarity threshold
                         const pageMap = new Map();
                         result.pages.forEach(page => {
                             if (!pageMap.has(page.slide_number)) {
@@ -256,19 +231,11 @@
                         });
                         
                         let uniquePages = Array.from(pageMap.values());
-                        
-                        // Sort by similarity descending
                         uniquePages.sort((a, b) => b.similarity - a.similarity);
-                        
-                        // Get highest similarity score
                         const highestSimilarity = uniquePages[0]?.similarity || 0;
-                        
-                        // Filter pages: keep if within 10% of highest similarity
                         uniquePages = uniquePages.filter(page => 
                             page.similarity >= highestSimilarity - 0.1
                         );
-                        
-                        // Sort by slide number for display
                         uniquePages.sort((a, b) => a.slide_number - b.slide_number);
 
                         const pages = uniquePages.map(page => `
@@ -291,7 +258,14 @@
                         `;
                     }).join('');
 
-                    bottomBox.innerHTML = `<div class="search-results">${searchResults}</div>`;
+                    bottomBox.innerHTML = `
+                        <div class="search-results">
+                            ${searchResults}
+                        </div>
+                        <button id="analyzeButton" class="analyze-button" onclick="handleAnalysis()">
+                            Analyze Results
+                        </button>
+                    `;
                 } else {
                     bottomBox.innerHTML = '<div class="search-results">No results found</div>';
                 }
@@ -299,6 +273,37 @@
             .catch(error => {
                 console.error('Error:', error);
                 bottomBox.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            });
+        }
+
+        function handleAnalysis() {
+            const analyzeButton = document.getElementById('analyzeButton');
+            analyzeButton.disabled = true;
+            analyzeButton.textContent = 'Analyzing...';
+
+            fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    setup_data: window.currentSetupData,
+                    search_results: window.searchResults
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const topBox = document.getElementById('response_box_top');
+                if (data.analysis_results) {
+                    topBox.innerHTML = `<div class="analysis-results">${data.analysis_results}</div>`;
+                }
+                analyzeButton.textContent = 'Analysis Complete';
+            })
+            .catch(error => {
+                console.error('Analysis error:', error);
+                analyzeButton.textContent = 'Analysis Failed';
+                const topBox = document.getElementById('response_box_top');
+                topBox.innerHTML = `<div class="error">Analysis Error: ${error.message}</div>`;
             });
         }
     </script>
@@ -354,6 +359,27 @@
             padding: 1rem;
             background: #f8d7da;
             border-radius: 4px;
+        }
+
+        .analyze-button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+
+        .analyze-button:hover {
+            background-color: #218838;
+        }
+
+        .analyze-button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
         }
     </style>
 </body>

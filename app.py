@@ -141,34 +141,52 @@ def store_setup():
             'target_location': setup_data.get('target_location', '')
         }
 
-        # Get detailed search results
+        # Get search results only
         search_results = search(search_data)
-        
-        # Process search results for analysis
-        flattened_results = []
-        for file_result in search_results:
-            for page in file_result['pages']:
-                flattened_results.append({
-                    "file_name": file_result['file_name'],
-                    "slide_number": page['slide_number'],
-                    "text": page['text'],
-                    "similarity": page['similarity']
-                })
-        
-        # Generate analysis using flattened results
-        analysis_results = generate_bullet_points(setup_data, flattened_results)
         
         response = {
             "status": "success",
             "message": "Setup data processed successfully",
-            "search_results": search_results,  # Now contains detailed page results per file
-            "analysis_results": analysis_results
+            "search_results": search_results
         }
         
         return jsonify(response)
         
     except Exception as e:
         logger.error(f"Error in store_setup: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 400
+
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    try:
+        data = request.get_json()
+        setup_data = data.get('setup_data')
+        search_results = data.get('search_results')
+        
+        # Format search results for analysis
+        formatted_results = []
+        for file_result in search_results:
+            for page in file_result['pages']:
+                formatted_results.append({
+                    "file_name": file_result['file_name'],
+                    "slide_number": page['slide_number'],
+                    "text": page['text'],
+                    "similarity": page['similarity']
+                })
+        
+        # Generate analysis with formatted results
+        analysis_results = generate_bullet_points(setup_data, formatted_results)
+        
+        return jsonify({
+            "status": "success",
+            "analysis_results": analysis_results
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in analyze: {str(e)}")
         return jsonify({
             "status": "error",
             "message": str(e)

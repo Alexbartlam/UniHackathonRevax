@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revax AI - Setup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="setup-page">
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Top Box (1/3) -->
+        <div class="top-box">
+            <div class="setup-inputs">
+                <div class="input-group">
+                    <label>Client name:</label>
+                    <input type="text" class="setup-input" id="client_name" placeholder="Client name">
+                </div>
+                <div class="input-group">
+                    <label>Client location:</label>
+                    <input type="text" class="setup-input" id="client_location" placeholder="Client location">
+                </div>
+                <div class="input-group">
+                    <label>Target name:</label>
+                    <input type="text" class="setup-input" id="target_name" placeholder="Target name">
+                </div>
+                <div class="input-group">
+                    <label>Target location:</label>
+                    <input type="text" class="setup-input" id="target_location" placeholder="Target location">
+                </div>
+                <div class="input-group">
+                    <label>Lead partner:</label>
+                    <input type="text" class="setup-input" id="lead_partner" placeholder="Lead partner">
+                </div>
+                <button class="setup-submit" id="setup-submit">Submit</button>
+            </div>
+        </div>
+
+        <!-- Bottom Box (2/3) -->
+        <div class="bottom-box">
+            <!-- Empty for now -->
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div id="response_box_top" class="chat-top"></div>
+    <div id="response_box_bottom" class="chat-bottom"></div>
+
+    <form onsubmit="sendUserInput(event)" class="input-form">
+        <div class="input-container">
+            <input type="text" id="user_input" name="user_input" placeholder="Talk to Revax" required>
+            <button class="submit-button" type="submit">
+                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </button>
+            <button type="button" class="reset-button" onclick="resetConversation()">
+                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <polyline points="23 20 23 14 17 14"></polyline>
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                </svg>
+            </button>
+        </div>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Page loaded and script initialized"); // Verify script is running
+            
+            // Get the submit button and add click listener directly
+            const submitButton = document.querySelector('.setup-submit');
+            if (submitButton) {
+                console.log("Submit button found");
+                submitButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log("Submit button clicked");
+                    handleSetupSubmit();
+                });
+            } else {
+                console.error("Submit button not found");
+            }
+        });
+
+        function appendMessage(type, content) {
+            const responseBox = document.getElementById('response_box');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add(type + "-message");
+            messageDiv.textContent = content;
+            responseBox.appendChild(messageDiv);
+            responseBox.scrollTop = responseBox.scrollHeight;
+            return messageDiv;
+        }
+
+        function sendUserInput(event) {
+            event.preventDefault();
+            const userInput = document.getElementById('user_input').value;
+            if (!userInput.trim()) return;
+
+            const chatBox = document.getElementById('response_box_bottom');
+            
+            // Add user message to chat
+            chatBox.innerHTML += `
+                <div class="user-message">
+                    <p>${userInput}</p>
+                </div>
+            `;
+
+            // Show loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading-message';
+            loadingDiv.textContent = 'Thinking...';
+            chatBox.appendChild(loadingDiv);
+            
+            // Scroll to bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Clear input
+            document.getElementById('user_input').value = '';
+
+            // Send to backend
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: userInput,
+                    session_id: getCurrentSessionId()
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove loading indicator
+                loadingDiv.remove();
+                
+                // Add AI response
+                chatBox.innerHTML += `
+                    <div class="ai-message">
+                        <p>${data.message}</p>
+                    </div>
+                `;
+                
+                // Scroll to bottom
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => {
+                loadingDiv.remove();
+                chatBox.innerHTML += `
+                    <div class="error-message">
+                        <p>Error: ${error}</p>
+                    </div>
+                `;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        }
+
+        function getCurrentSessionId() {
+            let sessionId = localStorage.getItem('chat_session_id');
+            if (!sessionId) {
+                sessionId = 'session_' + Date.now();
+                localStorage.setItem('chat_session_id', sessionId);
+            }
+            return sessionId;
+        }
+
+        function resetConversation() {
+            const sessionId = getCurrentSessionId();
+            
+            fetch('/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: sessionId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('response_box').innerHTML = '';
+                    localStorage.removeItem('chat_session_id');
+                    getCurrentSessionId();
+                    document.getElementById('user_input').value = '';
+                    appendMessage('assistant', 'Conversation has been reset. How can I help you?');
+                } else {
+                    console.error('Reset failed:', data.message);
+                    appendMessage('assistant', 'Failed to reset conversation. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                appendMessage('assistant', 'Error resetting conversation. Please try again.');
+            });
+        }
+
+        function handleSetupSubmit() {
+            console.log("handleSetupSubmit function called");
+
+            const setupData = {
+                client_name: document.getElementById('client_name')?.value || "",
+                client_location: document.getElementById('client_location')?.value || "",
+                target_name: document.getElementById('target_name')?.value || "",
+                target_location: document.getElementById('target_location')?.value || "",
+                lead_partner: document.getElementById('lead_partner')?.value || ""
+            };
+
+            console.log("Collected setup data:", setupData);
+
+            const topBox = document.getElementById('response_box_top');
+            const bottomBox = document.querySelector('.bottom-box');
+
+            if (!topBox || !bottomBox) {
+                console.error("Required elements not found!");
+                return;
+            }
+
+            // Show loading states
+            topBox.innerHTML = '<div class="loading">Generating analysis...</div>';
+            bottomBox.innerHTML = '<div class="loading">Searching for relevant cases...</div>';
+
+            fetch('/store-setup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(setupData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Backend success:', data);
+                
+                // Display analysis results in top box
+                if (data.analysis_results) {
+                    topBox.innerHTML = `<div class="analysis-results">${data.analysis_results}</div>`;
+                } else {
+                    topBox.innerHTML = '<div class="error">No analysis results available</div>';
+                }
+
+                // Display search results in bottom box
+                if (data.search_results && Array.isArray(data.search_results)) {
+                    const formattedResults = data.search_results.map(result => `
+                        <div class="search-result">
+                            <p class="result-file">File: ${result.file_name}</p>
+                            <p class="result-slide">Slide: ${result.slide_number}</p>
+                            <p class="result-similarity">Similarity: ${(result.similarity * 100).toFixed(2)}%</p>
+                        </div>
+                    `).join('');
+                    
+                    bottomBox.innerHTML = `
+                        <div class="search-results">
+                            ${formattedResults || 'No results found'}
+                        </div>
+                    `;
+                } else {
+                    bottomBox.innerHTML = '<div class="search-results">No results found</div>';
+                }
+            })
+            .catch((error) => {
+                console.error('Backend error:', error);
+                topBox.innerHTML = `<div class="error">Analysis Error: ${error}</div>`;
+                bottomBox.innerHTML = `<div class="error">Search Error: ${error}</div>`;
+            });
+        }
+    </script>
+</body>
+</html> 

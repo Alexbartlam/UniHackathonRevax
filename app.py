@@ -1,15 +1,30 @@
 from flask import Flask, request, session, jsonify, render_template, url_for
+from datetime import timedelta
 import json
 import os
 import time
-from process_message import process_message
-from datetime import timedelta
 import random
 import uuid
+import logging
+from Case_bank.Search import search
+from Analyse import generate_bullet_points
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+from chat_manager import ChatManager
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = 'your-secret-key-here'  # Replace with secure key
 app.permanent_session_lifetime = timedelta(hours=1)
+
+# Store chat managers for each session
+chat_managers = {}
 
 def cleanup_old_sessions():
     """Clean up session files older than 1 hour"""
@@ -41,52 +56,53 @@ def chat():
 
         if not session_id:
             session_id = str(uuid.uuid4())
-            session['session_id'] = session_id
-
-        # Process the message
-        response = process_message(session_id, user_message)
         
-        # Add session ID to response
+        # Get or create chat manager for this session
+        if session_id not in chat_managers:
+            chat_managers[session_id] = ChatManager()
+            # Set context from session if available
+            if 'analysis_results' in session and 'search_results' in session:
+                chat_managers[session_id].set_context(
+                    session['analysis_results'],
+                    session['search_results']
+                )
+        
+        # Process the message
+        response = chat_managers[session_id].process_message(user_message)
         response['session_id'] = session_id
+        
         return jsonify(response)
 
     except Exception as e:
-        app.logger.error(f"Chat error: {str(e)}")
+        logger.error(f"Chat error: {str(e)}")
         return jsonify({
             "type": "error",
-            "message": f"ERROR: {str(e)}",
-            "progress": 0,
-            "session_id": session.get('session_id')
+            "message": f"Error: {str(e)}",
+            "session_id": session_id
         })
 
-@app.route('/reset', methods=['POST'])
-def reset_conversation():
-    """Reset the conversation state"""
+@app.route('/reset-chat', methods=['POST'])
+def reset_chat():
     try:
-        session_id = request.get_json().get('session_id')
-        if session_id:
-            # Clear session file
-            state_file = f"/tmp/conversation_state_{session_id}.json"
-            if os.path.exists(state_file):
-                os.remove(state_file)
-            
-            # Clear session data
-            session.clear()
-            
-            return jsonify({
-                "status": "success",
-                "message": "Conversation reset successfully"
-            })
-        else:
-            return jsonify({
-                "status": "error",
-                "message": "No session ID provided"
-            })
-    except Exception as e:
-        app.logger.error(f"Reset error: {str(e)}")
+        data = request.get_json()
+        session_id = data.get('session_id')
+        
+        if session_id in chat_managers:
+            response = chat_managers[session_id].reset_conversation()
+            response['session_id'] = session_id
+            return jsonify(response)
+        
         return jsonify({
-            "status": "error",
-            "message": str(e)
+            "type": "error",
+            "message": "Session not found",
+            "session_id": session_id
+        })
+        
+    except Exception as e:
+        logger.error(f"Reset chat error: {str(e)}")
+        return jsonify({
+            "type": "error",
+            "message": f"Error: {str(e)}"
         })
 
 @app.route('/health', methods=['GET'])
@@ -96,9 +112,72 @@ def health_check():
 
 @app.route('/')
 def home():
+    logger.debug("Home route accessed")
     return render_template('index.html')
+
+@app.route('/setup')
+def setup():
+    logger.debug("Setup route accessed")
+    return render_template('setup.html')
+
+@app.route('/store-setup', methods=['POST'])
+def store_setup():
+    logger.debug("Store setup route accessed")
+    
+    try:
+        setup_data = request.get_json()
+        logger.info(f"Received setup data: {setup_data}")
+        
+        # Store in session
+        session['setup_data'] = setup_data
+
+        # Create search_data with correct field names for Search.py
+        search_data = {
+            'client': setup_data.get('client_name', ''),
+            'client_location': setup_data.get('client_location', ''),
+            'target': setup_data.get('target_name', ''),
+            'target_location': setup_data.get('target_location', '')
+        }
+
+        # First get search results
+        try:
+            search_results = search(search_data)
+            logger.info("Search completed successfully")
+            logger.debug(f"Search results: {search_results}")
+        except Exception as search_error:
+            logger.error(f"Search error: {str(search_error)}")
+            search_results = []
+
+        # Then pass search results to analysis
+        try:
+            analysis_results = generate_bullet_points(setup_data, search_results)
+            logger.info("Analysis completed successfully")
+            logger.debug(f"Analysis results: {analysis_results}")
+        except Exception as analysis_error:
+            logger.error(f"Analysis error: {str(analysis_error)}")
+            analysis_results = str(analysis_error)
+        
+        response = {
+            "status": "success",
+            "message": "Setup data processed successfully",
+            "search_results": search_results,
+            "analysis_results": analysis_results
+        }
+        
+        logger.info("Sending response with both results")
+        logger.debug(f"Final response: {response}")
+        return jsonify(response)
+    
+    except Exception as e:
+        logger.error(f"Error in store_setup: {str(e)}", exc_info=True)
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+            "error_type": type(e).__name__
+        }), 400
 
 if __name__ == '__main__':
     # Ensure tmp directory exists
     os.makedirs('/tmp', exist_ok=True)
+    logger.info("Starting Flask application")
     app.run(debug=True) 

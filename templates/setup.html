@@ -246,7 +246,11 @@
                                     </div>
                                 </div>
                                 <div class="filename-box">
-                                    <img src="" alt="Loading PDF preview..." class="document-preview" id="preview_${safeFileName}">
+                                    <div class="pdf-navigation">
+                                        <button class="nav-button prev-button" onclick="changePage(this, -1)">←</button>
+                                        <img src="" alt="Loading PDF preview..." class="preview-image" id="preview_${safeFileName}">
+                                        <button class="nav-button next-button" onclick="changePage(this, 1)">→</button>
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -284,6 +288,8 @@
                                     if (img) {
                                         img.src = `data:image/png;base64,${data.image}`;
                                         img.className = 'preview-image';
+                                        img.dataset.currentPage = 0;
+                                        img.dataset.totalPages = data.total_pages;
                                     } else {
                                         console.error("Image element not found:", `preview_${safeFileName}`);
                                     }
@@ -345,6 +351,56 @@
                 const topBox = document.getElementById('response_box_top');
                 topBox.innerHTML = `<div class="error">Analysis Error: ${error.message}</div>`;
             });
+        }
+
+        function changePage(button, direction) {
+            const resultGroup = button.closest('.result-group');
+            const img = resultGroup.querySelector('.preview-image');
+            const fileId = img.id.replace('preview_', '');
+            
+            // Get current page from data attribute or default to 0
+            let currentPage = parseInt(img.dataset.currentPage || 0);
+            let newPage = currentPage + direction;
+            
+            // Get original filename from the result group
+            const filenameElement = resultGroup.querySelector('.filename');
+            let filename = filenameElement.textContent;
+            filename = filename.replace(" copy", "");
+            filename = filename.replace(/ /g, "_");
+            filename = filename + ".pdf";
+
+            // Fetch new page
+            fetch(`/get_pdf_page/${encodeURIComponent(filename)}/${newPage}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.image) {
+                        img.src = `data:image/png;base64,${data.image}`;
+                        img.dataset.currentPage = newPage;
+                        img.dataset.totalPages = data.total_pages;
+                        
+                        // Always enable both buttons first
+                        const prevButton = resultGroup.querySelector('.prev-button');
+                        const nextButton = resultGroup.querySelector('.next-button');
+                        prevButton.disabled = false;
+                        nextButton.disabled = false;
+                        
+                        // Then disable if at limits
+                        if (newPage <= 0) {
+                            prevButton.disabled = true;
+                        }
+                        if (newPage >= data.total_pages - 1) {
+                            nextButton.disabled = true;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading PDF page:', error);
+                });
         }
     </script>
 
@@ -508,6 +564,49 @@
             flex-wrap: wrap;
             gap: 4px;        /* Reduced gap */
             margin-bottom: 40px; /* Reduced space for analyse button */
+        }
+
+        .pdf-navigation {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #dee2e6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 1;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .prev-button {
+            left: 5px;
+        }
+
+        .next-button {
+            right: 5px;
         }
     </style>
 </body>

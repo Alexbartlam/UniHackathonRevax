@@ -53,22 +53,29 @@ def chat():
         data = request.get_json()
         user_message = data.get('message', '')
         session_id = data.get('session_id')
+        
+        logger.debug(f"Chat request received - Session ID: {session_id}, Message: {user_message}")
 
         if not session_id:
             session_id = str(uuid.uuid4())
+            logger.debug(f"Created new session ID: {session_id}")
         
         # Get or create chat manager for this session
         if session_id not in chat_managers:
+            logger.debug(f"Creating new chat manager for session {session_id}")
             chat_managers[session_id] = ChatManager()
             # Set context from session if available
             if 'analysis_results' in session and 'search_results' in session:
+                logger.debug("Setting context from session")
                 chat_managers[session_id].set_context(
-                    session['analysis_results'],
-                    session['search_results']
+                    session.get('analysis_results'),
+                    session.get('search_results')
                 )
         
         # Process the message
-        response = chat_managers[session_id].process_message(user_message)
+        chat_manager = chat_managers[session_id]
+        logger.debug(f"Chat manager has analysis: {bool(chat_manager.analysis_results)}")
+        response = chat_manager.process_message(user_message)
         response['session_id'] = session_id
         
         return jsonify(response)
@@ -157,11 +164,29 @@ def store_setup():
             logger.error(f"Analysis error: {str(analysis_error)}")
             analysis_results = str(analysis_error)
         
+        # Store results in session
+        session['analysis_results'] = analysis_results
+        session['search_results'] = search_results
+        logger.debug(f"Stored in session - Analysis: {bool(analysis_results)}, Search: {bool(search_results)}")
+
+        # Create or update chat manager with the new context
+        session_id = request.cookies.get('chat_session_id')  # Changed from 'session'
+        if not session_id:
+            session_id = str(uuid.uuid4())
+        
+        if session_id not in chat_managers:
+            chat_managers[session_id] = ChatManager()
+        
+        # Update chat manager context
+        chat_managers[session_id].set_context(analysis_results, search_results)
+        logger.debug(f"Updated chat manager context for session {session_id}")
+        
         response = {
             "status": "success",
             "message": "Setup data processed successfully",
             "search_results": search_results,
-            "analysis_results": analysis_results
+            "analysis_results": analysis_results,
+            "session_id": session_id  # Include session_id in response
         }
         
         logger.info("Sending response with both results")

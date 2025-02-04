@@ -94,7 +94,7 @@ def search(query_dict):
         if query_dict.get('transaction_type'):
             query_parts.append(query_dict['transaction_type'])
             
-        query = " ".join(query_parts)
+        query = " Establishing the aquisition structure".join(query_parts)
         log_debug(f"Processing query: {query}")
         
         # Get query embedding

@@ -283,6 +283,7 @@
                                     const img = document.getElementById(`preview_${safeFileName}`);
                                     if (img) {
                                         img.src = `data:image/png;base64,${data.image}`;
+                                        img.className = 'preview-image';
                                     } else {
                                         console.error("Image element not found:", `preview_${safeFileName}`);
                                     }
@@ -419,6 +420,94 @@
         .analyze-button:disabled {
             background-color: #6c757d;
             cursor: not-allowed;
+        }
+
+        .result-box {
+            flex: 1;
+            font-size: 12px;  /* Even smaller base font */
+            padding: 0;
+            margin-bottom: 4px;  /* Minimal margin */
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            max-height: 220px;  /* Reduced maximum height */
+        }
+
+        /* Title styling */
+        .result-box h3 {
+            margin: 0;
+            padding: 2px 8px;  /* Minimal padding */
+            font-size: 13px;   
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 20px;     /* Reduced height */
+            line-height: 20px;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            height: 100px;    /* Even shorter height */
+            display: block;
+            margin: 0;
+            padding: 0;
+            object-fit: cover;
+        }
+
+        .preview-container {
+            margin: 0;
+            padding: 0;
+            height: 100px;   /* Match image height */
+            overflow: hidden;
+            line-height: 0;  /* Remove any line height spacing */
+            font-size: 0;    /* Remove any font spacing */
+        }
+
+        /* Slide indicators container */
+        .pages-container {
+            margin: 0;
+            padding: 0 8px;  /* Only horizontal padding */
+            background: white;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* Individual slide indicators */
+        .pages-container p {
+            margin: 0;       /* No margins */
+            padding: 1px 0;  /* Minimal vertical padding */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;  /* Smaller font */
+            line-height: 1;   /* No extra line height */
+            height: 14px;     /* Minimal fixed height */
+        }
+
+        /* Similarity score */
+        .similarity-score {
+            margin-left: auto;
+            color: #28a745;
+            font-weight: 600;
+            font-size: 11px;  /* Match other text */
+        }
+
+        /* Bottom box (container) */
+        .bottom-box {
+            height: calc(100vh - 400px);
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Search results container */
+        .search-results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;        /* Reduced gap */
+            margin-bottom: 40px; /* Reduced space for analyse button */
         }
     </style>
 </body>

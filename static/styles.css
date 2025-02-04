@@ -111,37 +111,37 @@ button, .primary-button {
 
 .result-group {
     display: flex;
-    gap: 1.5rem;  /* Consistent spacing between boxes */
-    margin-bottom: 1.5rem;
-    justify-content: center;  /* Center the boxes */
+    gap: 1rem;  /* Reduced gap */
+    margin-bottom: 1rem;  /* Reduced margin */
+    justify-content: center;
 }
 
 .result-card {
-    width: 300px;  /* Fixed width for consistency */
+    width: 280px;  /* Slightly reduced width */
     background: white;
     border: 1px solid #dee2e6;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 0.75rem;  /* Reduced padding */
     flex: 0 0 auto;
 }
 
 .filename-box {
     width: 200px;
-    height: 282px;  /* Aspect ratio similar to A4 paper (1:√2) */
+    height: auto;  /* Remove fixed height */
     background: white;
     border: 1px solid #dee2e6;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 0.75rem;  /* Reduced padding */
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;  /* Prevent image overflow */
+    overflow: hidden;
 }
 
 .document-preview {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;  /* Maintain aspect ratio */
+    width: 100%;
+    height: 120px;  /* Fixed height for preview */
+    object-fit: contain;
 }
 
 .file-info {

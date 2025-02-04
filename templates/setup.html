@@ -230,40 +230,131 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Backend success:', data);
+                console.log("Full response:", data);  // Debug log
+                const topBox = document.getElementById('response_box_top');
+                const bottomBox = document.querySelector('.bottom-box');
                 
-                // Display analysis results in top box
+                console.log("Found bottomBox:", bottomBox); // Check if we found the element
+
+                // Update analysis results
                 if (data.analysis_results) {
                     topBox.innerHTML = `<div class="analysis-results">${data.analysis_results}</div>`;
-                } else {
-                    topBox.innerHTML = '<div class="error">No analysis results available</div>';
                 }
 
-                // Display search results in bottom box
-                if (data.search_results && Array.isArray(data.search_results)) {
-                    const formattedResults = data.search_results.map(result => `
-                        <div class="search-result">
-                            <p class="result-file">File: ${result.file_name}</p>
-                            <p class="result-slide">Slide: ${result.slide_number}</p>
-                            <p class="result-similarity">Similarity: ${(result.similarity * 100).toFixed(2)}%</p>
-                        </div>
-                    `).join('');
-                    
-                    bottomBox.innerHTML = `
-                        <div class="search-results">
-                            ${formattedResults || 'No results found'}
-                        </div>
-                    `;
+                // Update search results - with debug logging
+                if (data.search_results && data.search_results.length > 0) {
+                    const searchResults = data.search_results.map(result => {
+                        console.log("Processing result:", result);  // Debug log
+                        console.log("Pages before dedup:", result.pages);  // Debug log
+                        
+                        // Deduplicate pages and filter by similarity threshold
+                        const pageMap = new Map();
+                        result.pages.forEach(page => {
+                            if (!pageMap.has(page.slide_number)) {
+                                pageMap.set(page.slide_number, page);
+                            }
+                        });
+                        
+                        let uniquePages = Array.from(pageMap.values());
+                        
+                        // Sort by similarity descending
+                        uniquePages.sort((a, b) => b.similarity - a.similarity);
+                        
+                        // Get highest similarity score
+                        const highestSimilarity = uniquePages[0]?.similarity || 0;
+                        
+                        // Filter pages: keep if within 10% of highest similarity
+                        uniquePages = uniquePages.filter(page => 
+                            page.similarity >= highestSimilarity - 0.1
+                        );
+                        
+                        // Sort by slide number for display
+                        uniquePages.sort((a, b) => a.slide_number - b.slide_number);
+
+                        const pages = uniquePages.map(page => `
+                            <div class="page-info">
+                                <span>Slide ${page.slide_number}</span>
+                                <span>${(page.similarity * 100).toFixed(1)}%</span>
+                            </div>
+                        `).join('');
+
+                        return `
+                            <div class="result-card">
+                                <div class="file-info">
+                                    <span class="filename">${result.file_name}</span>
+                                    <span class="match">${(result.overall_similarity * 100).toFixed(1)}%</span>
+                                </div>
+                                <div class="pages-container">
+                                    ${pages}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    bottomBox.innerHTML = `<div class="search-results">${searchResults}</div>`;
                 } else {
                     bottomBox.innerHTML = '<div class="search-results">No results found</div>';
                 }
             })
-            .catch((error) => {
-                console.error('Backend error:', error);
-                topBox.innerHTML = `<div class="error">Analysis Error: ${error}</div>`;
-                bottomBox.innerHTML = `<div class="error">Search Error: ${error}</div>`;
+            .catch(error => {
+                console.error('Error:', error);
+                bottomBox.innerHTML = `<div class="error">Error: ${error.message}</div>`;
             });
         }
     </script>
+
+    <style>
+        .result-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 0.4rem;
+            padding: 0.4rem;
+            font-size: 0.8em;
+        }
+
+        .file-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 0.2rem;
+            padding-bottom: 0.2rem;
+        }
+
+        .filename {
+            color: #495057;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .match {
+            color: #28a745;
+            font-size: 0.9em;
+        }
+
+        .page-info {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 3px;
+            margin-bottom: 0.2rem;
+            padding: 0.2rem 0.4rem;
+            color: #6c757d;
+            font-size: 0.85em;
+        }
+
+        .pages-container {
+            margin-top: 0.2rem;
+        }
+
+        .error {
+            color: #dc3545;
+            padding: 1rem;
+            background: #f8d7da;
+            border-radius: 4px;
+        }
+    </style>
 </body>
 </html> 

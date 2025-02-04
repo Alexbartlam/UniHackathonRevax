@@ -129,16 +129,11 @@ def setup():
 
 @app.route('/store-setup', methods=['POST'])
 def store_setup():
-    logger.debug("Store setup route accessed")
-    
     try:
         setup_data = request.get_json()
         logger.info(f"Received setup data: {setup_data}")
         
-        # Store in session
-        session['setup_data'] = setup_data
-
-        # Create search_data with correct field names for Search.py
+        # Create search_data with correct field names
         search_data = {
             'client': setup_data.get('client_name', ''),
             'client_location': setup_data.get('client_location', ''),
@@ -146,59 +141,37 @@ def store_setup():
             'target_location': setup_data.get('target_location', '')
         }
 
-        # First get search results
-        try:
-            search_results = search(search_data)
-            logger.info("Search completed successfully")
-            logger.debug(f"Search results: {search_results}")
-        except Exception as search_error:
-            logger.error(f"Search error: {str(search_error)}")
-            search_results = []
-
-        # Then pass search results to analysis
-        try:
-            analysis_results = generate_bullet_points(setup_data, search_results)
-            logger.info("Analysis completed successfully")
-            logger.debug(f"Analysis results: {analysis_results}")
-        except Exception as analysis_error:
-            logger.error(f"Analysis error: {str(analysis_error)}")
-            analysis_results = str(analysis_error)
+        # Get detailed search results
+        search_results = search(search_data)
         
-        # Store results in session
-        session['analysis_results'] = analysis_results
-        session['search_results'] = search_results
-        logger.debug(f"Stored in session - Analysis: {bool(analysis_results)}, Search: {bool(search_results)}")
-
-        # Create or update chat manager with the new context
-        session_id = request.cookies.get('chat_session_id')  # Changed from 'session'
-        if not session_id:
-            session_id = str(uuid.uuid4())
+        # Process search results for analysis
+        flattened_results = []
+        for file_result in search_results:
+            for page in file_result['pages']:
+                flattened_results.append({
+                    "file_name": file_result['file_name'],
+                    "slide_number": page['slide_number'],
+                    "text": page['text'],
+                    "similarity": page['similarity']
+                })
         
-        if session_id not in chat_managers:
-            chat_managers[session_id] = ChatManager()
-        
-        # Update chat manager context
-        chat_managers[session_id].set_context(analysis_results, search_results)
-        logger.debug(f"Updated chat manager context for session {session_id}")
+        # Generate analysis using flattened results
+        analysis_results = generate_bullet_points(setup_data, flattened_results)
         
         response = {
             "status": "success",
             "message": "Setup data processed successfully",
-            "search_results": search_results,
-            "analysis_results": analysis_results,
-            "session_id": session_id  # Include session_id in response
+            "search_results": search_results,  # Now contains detailed page results per file
+            "analysis_results": analysis_results
         }
         
-        logger.info("Sending response with both results")
-        logger.debug(f"Final response: {response}")
         return jsonify(response)
-    
+        
     except Exception as e:
-        logger.error(f"Error in store_setup: {str(e)}", exc_info=True)
+        logger.error(f"Error in store_setup: {str(e)}")
         return jsonify({
             "status": "error",
-            "message": str(e),
-            "error_type": type(e).__name__
+            "message": str(e)
         }), 400
 
 if __name__ == '__main__':

@@ -39,33 +39,86 @@ body:not(.setup-page) {
     padding: 0 20px;
 }
 
-/* Button Styles */
-button, .primary-button {
+/* Base button styles */
+button,
+.primary-button,
+.secondary-button,
+.setup-submit,
+.analyze-button,
+.nav-button,
+.input-form button,
+.submit-button {
     padding: 12px 20px;
     font-size: 1rem;
     font-weight: 600;
-    border: none;
+    border: 1px solid #E5E7EB;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
+    background-color: #E3F2FD;  /* Light baby blue */
+    color: #374151;
 }
 
-.primary-button {
-    background-color: #4CAF50;
-    color: #FFFFFF;
+/* Button hover states */
+button:hover:not(:disabled),
+.primary-button:hover:not(:disabled),
+.secondary-button:hover:not(:disabled),
+.setup-submit:hover:not(:disabled),
+.analyze-button:hover:not(:disabled),
+.nav-button:hover:not(:disabled),
+.input-form button:hover:not(:disabled),
+.submit-button:hover:not(:disabled) {
+    background-color: #BBDEFB;  /* Slightly darker baby blue */
 }
 
-.primary-button:hover {
-    background-color: #3E8E41;
+/* Disabled button states */
+button:disabled,
+.primary-button:disabled,
+.secondary-button:disabled,
+.setup-submit:disabled,
+.analyze-button:disabled,
+.nav-button:disabled,
+.input-form button:disabled,
+.submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.secondary-button {
-    background-color: #E5E7EB;
-    color: #333333;
+/* Match and similarity text colors */
+.match, 
+.similarity-score,
+.similarity {
+    color: #374151;  /* Standard text color instead of green */
 }
 
-.secondary-button:hover {
-    background-color: #D1D5DB;
+/* Progress bar */
+.progress-fill {
+    background-color: #90CAF9;  /* Medium baby blue */
+}
+
+/* Navigation buttons specific styles */
+.nav-button {
+    background-color: rgba(227, 242, 253, 0.8);  /* Semi-transparent baby blue */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-button:hover:not(:disabled) {
+    background-color: rgba(187, 222, 251, 0.9);  /* Slightly darker semi-transparent baby blue */
+}
+
+/* Analyze button specific positioning */
+.analyze-button {
+    position: fixed;
+    left: 20%;
+    transform: translateX(-50%);
+    bottom: 20px;
+    width: 120px;
 }
 
 /* Setup Page Specific Styles */
@@ -123,7 +176,7 @@ button, .primary-button {
 
 .result-card {
     width: 38%;  /* Reduced further from 42% */
-    background: white;
+    background: #E3F2FD;  /* Light baby blue */
     border: 1px solid #dee2e6;
     border-radius: 8px;
     padding: 1.5rem;
@@ -170,11 +223,6 @@ button, .primary-button {
     text-align: left;
 }
 
-.match, .similarity {
-    text-align: right;
-    min-width: 60px;  /* Ensure consistent width for percentages */
-}
-
 /* Remove unnecessary styling */
 .result-card {
     background: none;
@@ -185,22 +233,6 @@ button, .primary-button {
 .page-info {
     background: none;
     border: none;
-}
-
-.analyze-button {
-    position: fixed;
-    left: 20%;
-    transform: translateX(-50%);
-    bottom: 20px;
-    width: 120px;
-}
-
-.analyze-button:hover:not(:disabled) {
-    background-color: #218838;  /* Darker shade for hover */
-}
-
-.analyze-button:disabled {
-    opacity: 0.5;
 }
 
 /* Chat Interface Styles */
@@ -316,18 +348,9 @@ button, .primary-button {
     flex-shrink: 0;
 }
 
-.submit-button {
-    background: #4CAF50;
-    color: white;
-}
-
 .reset-button {
     background: transparent;
     color: #6e6e80;
-}
-
-.submit-button:hover {
-    background: #3E8E41;
 }
 
 .reset-button:hover {
@@ -377,13 +400,6 @@ button, .primary-button {
     background-color: #E5E7EB;
     border-radius: 2px;
     overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background-color: #4CAF50;
-    width: 0;
-    transition: width 0.3s ease;
 }
 
 .progress-label {
@@ -602,4 +618,30 @@ button, .primary-button {
 
 .page-info {
     color: #9ca3af;
+}
+
+/* Make all buttons consistent with off-white shade */
+.setup-submit, 
+.analyze-button,
+.nav-button,
+.input-form button,
+.submit-button,
+.primary-button,
+.secondary-button,
+button {
+    background-color: #F8F9FA !important;  /* Light off-white */
+    color: #374151 !important;  /* Dark gray text */
+    border: 1px solid #E5E7EB !important;
+}
+
+/* Hover state for all buttons */
+.setup-submit:hover, 
+.analyze-button:hover,
+.nav-button:hover,
+.input-form button:hover,
+.submit-button:hover,
+.primary-button:hover,
+.secondary-button:hover,
+button:hover {
+    background-color: #E5E7EB !important;  /* Slightly darker off-white */
 }

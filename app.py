@@ -14,6 +14,7 @@ from chat_manager import ChatManager
 import fitz
 from io import BytesIO
 import base64
+from mistralai import Mistral  # Add this import at the top
 
 # Configure logging
 logging.basicConfig(
@@ -266,6 +267,71 @@ def get_pdf_page(pdf_path, page_number):
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+@app.route('/refine-analysis', methods=['POST'])
+def refine_analysis():
+    try:
+        data = request.json
+        
+        # Initialize Mistral client
+        api_key = "9zMRdnt9VJz3fprSFW4ydGkKmC2sdYMF"
+        client = Mistral(api_key=api_key)
+        
+        # Create the prompt
+        prompt = f"""You are going to refine an existing analysis based on the user's request.
+
+Current Setup Information:
+{json.dumps(data['setup_data'], indent=2)}
+
+Search Results:
+{json.dumps(data['search_results'], indent=2)}
+
+Current Analysis:
+{data['current_analysis']}
+
+User's Refinement Request:
+{data['refinement_request']}
+
+*** You MUST reply in this format *** Use the context of the submitted cases to understand how to populate this template.
+*** Do not repeat the input information or slide data in your response. And do not provide any information after the response format.
+*** COMPULSORY RESPONSE FORMAT ***:
+
+- Establishing the aquisition structure:
+  - A, B, C, D, ....
+Steps:
+  - 1: (Text)
+  - 2: (Text)
+    ...
+  - X: (Text)
+
+Notes:
+  - General: (Text)
+  - Country A: (Text)
+  - Country B: (Text)
+    ...
+  - Country X: (Text)
+"""
+        
+        # Get response from Mistral
+        response = client.chat.complete(
+            model="mistral-medium",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=500
+        )
+        
+        refined_analysis = response.choices[0].message.content
+        
+        return jsonify({
+            'analysis_results': refined_analysis
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in refine_analysis: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 400
 
 if __name__ == '__main__':
     # Ensure tmp directory exists

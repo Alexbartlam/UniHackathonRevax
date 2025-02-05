@@ -190,7 +190,7 @@ button, .primary-button {
     right: 0;
     top: 0;
     width: 50%;
-    height: 50%;  /* Simple 50% height */
+    height: calc(100% - 90px);  /* Leave space just for input */
     border-left: 1px solid #D1D5DB;
     background: white;
     margin: 0;

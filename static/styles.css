@@ -5,7 +5,7 @@ body {
     font-family: 'Open Sans', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #F4F4F5;
+    background-color: #FFFFFF;
     color: #333333;
     height: 100vh;
     overflow: hidden;
@@ -26,7 +26,7 @@ body:not(.setup-page) {
     font-size: 2.5rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: #333333;
+    color: #FFFFFF;
 }
 
 /* Button Container */
@@ -70,15 +70,15 @@ button, .primary-button {
 
 /* Setup Page Specific Styles */
 .main-content {
-    width: 50%;
-    height: 100vh;
+    width: 40%;  /* Reduced from 50% */
+    height: calc(100vh - 50px);
+    margin-top: 50px;
     display: flex;
     flex-direction: column;
     padding: 0;
-    margin: 0;
     position: fixed;
     left: 0;
-    top: 0;
+    background-color: #FFFFFF;
 }
 
 .top-box {
@@ -88,50 +88,54 @@ button, .primary-button {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-bottom: 1px solid #D1D5DB;
     width: 100%;
     box-sizing: border-box;
+    background-color: #FFFFFF;
 }
 
 .bottom-box {
+    height: calc(100vh - 250px);
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;  /* Center content horizontally */
-    padding: 2rem;
+    align-items: center;
     width: 100%;
     box-sizing: border-box;
 }
 
 /* Search Results Layout */
 .search-results {
-    width: 80%;  /* Limit width to 80% of container */
-    max-width: 800px;  /* Maximum width */
-    margin: 0 auto;  /* Center the results container */
+    width: 80%;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    flex: 1;
+    margin-bottom: 40px;
 }
 
 .result-group {
     display: flex;
-    gap: 1rem;  /* Reduced gap */
-    margin-bottom: 1rem;  /* Reduced margin */
-    justify-content: center;
+    gap: 2rem;  /* Space between result card and preview */
+    margin-bottom: 3rem;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .result-card {
-    width: 280px;  /* Slightly reduced width */
+    width: 38%;  /* Reduced further from 42% */
     background: white;
     border: 1px solid #dee2e6;
     border-radius: 8px;
-    padding: 0.75rem;  /* Reduced padding */
+    padding: 1.5rem;
     flex: 0 0 auto;
 }
 
 .filename-box {
-    width: 200px;
-    height: auto;  /* Remove fixed height */
+    width: 56%;  /* Increased from 52% */
     background: white;
     border: 1px solid #dee2e6;
     border-radius: 8px;
-    padding: 0.75rem;  /* Reduced padding */
+    padding: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -152,9 +156,13 @@ button, .primary-button {
 }
 
 .page-info {
+    font-size: 0.8rem;
+    padding: 2px 0;
+    height: 12px;
     display: flex;
     justify-content: space-between;
-    padding: 0.25rem 0;
+    align-items: center;
+    gap: 5px;  /* Reduced gap further */
 }
 
 /* Text Alignment */
@@ -180,18 +188,28 @@ button, .primary-button {
 }
 
 .analyze-button {
-    margin: 2rem auto 0;
-    display: block;
+    position: fixed;
+    left: 20%;
+    transform: translateX(-50%);
+    bottom: 20px;
+    width: 120px;
+}
+
+.analyze-button:hover:not(:disabled) {
+    background-color: #218838;  /* Darker shade for hover */
+}
+
+.analyze-button:disabled {
+    opacity: 0.5;
 }
 
 /* Chat Interface Styles */
 .chat-top {
     position: fixed;
     right: 0;
-    top: 0;
-    width: 50%;
-    height: calc(100% - 90px);  /* Leave space just for input */
-    border-left: 1px solid #D1D5DB;
+    top: 90px;
+    width: 60%;  /* Increased from 50% */
+    height: calc(100% - 140px);
     background: white;
     margin: 0;
     padding: 20px;
@@ -207,7 +225,7 @@ button, .primary-button {
     height: calc(50% - 90px);  /* Account for input form */
     border-left: 1px solid #D1D5DB;
     border-top: 1px solid #D1D5DB;
-    background: white;
+    background: #FFFFFF;
     margin: 0;
     padding: 20px;
     overflow-y: auto;
@@ -218,12 +236,10 @@ button, .primary-button {
     position: fixed;
     right: 0;
     bottom: 0;
-    width: 50%;
+    width: 60%;  /* Increased from 50% */
     height: 90px;
     padding: 20px;
     background: white;
-    border-top: 1px solid #D1D5DB;
-    border-left: 1px solid #D1D5DB;
     box-sizing: border-box;
 }
 
@@ -283,6 +299,7 @@ button, .primary-button {
     flex-direction: column;
     padding: 15px;
     overflow-y: auto;
+    background-color: #FFFFFF;
 }
 
 /* Submit and Reset Buttons */
@@ -348,7 +365,7 @@ button, .primary-button {
     top: 0;
     width: 40%;
     padding: 10px 20px;
-    background: white;
+    background: #FFFFFF;
     border-left: 1px solid #D1D5DB;
     border-bottom: 1px solid #D1D5DB;
     z-index: 10;
@@ -385,63 +402,66 @@ button, .primary-button {
 .setup-inputs {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    width: 85%;
-    max-width: 450px;
-    margin-top: 20px;
+    width: 70%;  /* Reduced from 90% */
+    margin: 0 auto;
+    gap: 1rem;
+    align-items: center;  /* Center the inputs */
 }
 
 .input-group {
+    width: 100%;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 1rem;
 }
 
 .input-group label {
-    min-width: 110px;
+    width: 120px;  /* Increased slightly for better text fit */
     text-align: right;
-    font-size: 0.85rem;
-    color: #333333;
+    white-space: nowrap;  /* Prevent label text wrapping */
 }
 
 .setup-input {
-    height: 30px;
-    padding: 0 12px;
-    font-size: 0.85rem;
-    border: 1px solid #D1D5DB;
-    border-radius: 6px;
-    outline: none;
-    background-color: #FFFFFF;
-    transition: border-color 0.2s ease;
     flex: 1;
+    max-width: 200px;  /* Limit input width */
 }
 
-.setup-input:focus {
-    border-color: #4CAF50;
+.page-info {
+    font-size: 0.8rem;
+    padding: 2px 0;
+    height: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;  /* Reduced gap further */
 }
 
-.setup-input::placeholder {
-    color: #9CA3AF;
+.preview-placeholder {
+    width: 100%;
+    height: 110px;  /* Slightly increased due to saved space */
+    background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 0.9rem;
+    border-radius: 6px;
+}
+
+.pages-container {
+    margin: 0;
+    padding: 0 8px;
+    background: white;
+    border-top: 1px solid #f0f0f0;
+    font-size: 0.8rem;  /* Smaller text */
+    line-height: 1;  /* Tighter line height */
 }
 
 /* Setup Submit Button */
 .setup-submit {
-    height: 30px;
-    padding: 0 16px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    margin-top: 4px;
-    margin-left: 118px;
-}
-
-.setup-submit:hover {
-    background-color: #3E8E41;
+    margin-top: 1rem;
+    width: 120px;
+    align-self: center;
 }
 
 /* JSON Display Styling */
@@ -464,6 +484,7 @@ button, .primary-button {
     color: #333;
     padding: 15px;
     white-space: pre-line;
+    background-color: #FFFFFF;
 }
 
 /* Loading State Styling */
@@ -472,4 +493,94 @@ button, .primary-button {
     text-align: center;
     color: #6B7280;
     font-style: italic;
+}
+
+.revax-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background-color: #FFFFFF;
+    color: #333333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    z-index: 1000;
+}
+
+.revax-logo {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+/* Adjust main content to account for banner */
+.main-content {
+    width: 40%;  /* Reduced from 50% */
+    height: calc(100vh - 50px);
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: fixed;
+    left: 0;
+    background-color: #FFFFFF;
+}
+
+/* Adjust chat area for banner */
+.chat-top {
+    margin-top: 50px;  /* Add margin for banner */
+    height: calc(100% - 140px);  /* Adjust for banner and input form */
+}
+
+.input-form {
+    bottom: 0;
+}
+
+/* Main containers */
+.main-content,
+.top-box,
+.bottom-box,
+.chat-top,
+.chat-bottom,
+.input-form,
+.result-card,
+.filename-box,
+.search-results,
+.setup-inputs {
+    background-color: #FFFFFF;
+}
+
+/* Ensure chat areas are white */
+#response_box_top,
+#response_box_bottom {
+    background-color: #FFFFFF;
+}
+
+/* Result cards and boxes */
+.result-card,
+.filename-box {
+    background: #FFFFFF;
+    border: 1px solid #dee2e6;
+}
+
+/* Input areas */
+.setup-input {
+    background-color: #FFFFFF;
+}
+
+/* Analysis results area */
+.analysis-results {
+    background-color: #FFFFFF;
+}
+
+/* Add placeholder styles */
+.placeholder {
+    opacity: 0.5;
+}
+
+.page-info {
+    color: #9ca3af;
 }

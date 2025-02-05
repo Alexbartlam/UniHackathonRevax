@@ -207,9 +207,9 @@ button, .primary-button {
 .chat-top {
     position: fixed;
     right: 0;
-    top: 90px;
-    width: 60%;  /* Increased from 50% */
-    height: calc(100% - 140px);
+    top: 50px;  /* Keep this the same */
+    width: 60%;
+    height: calc(100vh - 140px);  /* Adjusted to use viewport height */
     background: white;
     margin: 0;
     padding: 20px;
@@ -236,9 +236,9 @@ button, .primary-button {
     position: fixed;
     right: 0;
     bottom: 0;
-    width: 60%;  /* Increased from 50% */
-    height: 90px;
-    padding: 20px;
+    width: 60%;
+    height: 70px;  /* Reduced from 90px */
+    padding: 15px 20px;  /* Slightly reduced padding */
     background: white;
     box-sizing: border-box;
 }
@@ -485,6 +485,26 @@ button, .primary-button {
     padding: 15px;
     white-space: pre-line;
     background-color: #FFFFFF;
+    margin: 0;  /* Remove any default margins */
+    padding: 0;  /* Remove any default padding */
+}
+
+/* Style the bullet points and lists */
+.analysis-results ul, 
+.analysis-results ol {
+    margin-top: 0;  /* Remove top margin from lists */
+    padding-top: 0;  /* Remove top padding from lists */
+}
+
+/* Style the first elements */
+.analysis-results > *:first-child {
+    margin-top: 0;  /* Ensure first element has no top margin */
+    padding-top: 0;  /* Ensure first element has no top padding */
+}
+
+/* Ensure consistent spacing between sections */
+.analysis-results > * {
+    margin-bottom: 1rem;  /* Add space between sections */
 }
 
 /* Loading State Styling */
@@ -531,8 +551,7 @@ button, .primary-button {
 
 /* Adjust chat area for banner */
 .chat-top {
-    margin-top: 50px;  /* Add margin for banner */
-    height: calc(100% - 140px);  /* Adjust for banner and input form */
+    height: calc(100vh - 120px);  /* Adjusted to account for smaller input form */
 }
 
 .input-form {

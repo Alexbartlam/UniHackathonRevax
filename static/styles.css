@@ -9,6 +9,7 @@ body {
     color: #333333;
     height: 100vh;
     overflow: hidden;
+    letter-spacing: 0.5px;  /* Slight letter spacing everywhere */
 }
 
 /* Landing Page Styles */
@@ -49,7 +50,7 @@ button,
 .input-form button,
 .submit-button {
     padding: 12px 20px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
     border: 1px solid #E5E7EB;
     border-radius: 8px;
@@ -57,6 +58,8 @@ button,
     transition: all 0.2s ease-in-out;
     background-color: #E3F2FD;  /* Light baby blue */
     color: #374151;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 /* Button hover states */
@@ -89,6 +92,8 @@ button:disabled,
 .similarity-score,
 .similarity {
     color: #374151;  /* Standard text color instead of green */
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 /* Progress bar */
@@ -221,11 +226,15 @@ button:disabled,
     align-items: center;
     gap: 5px;  /* Reduced gap further */
     margin-bottom: 0.1rem;  /* Reduced from 0.2rem */
+    font-weight: 500;
+    letter-spacing: 0.5px;
 }
 
 /* Text Alignment */
 .filename {
     text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 /* Remove unnecessary styling */
@@ -296,6 +305,8 @@ button:disabled,
     border-radius: 8px;
     outline: none;
     background-color: #FFFFFF;
+    font-weight: 500;
+    letter-spacing: 0.5px;
 }
 
 /* Chat Messages */
@@ -423,44 +434,54 @@ button:disabled,
 .setup-inputs {
     display: flex;
     flex-direction: column;
-    width: 70%;
-    margin: 0 auto;
-    gap: 0.25rem;  /* Reduced from 0.5rem */
+    width: 100%;  /* Full width to allow proper centering */
     align-items: center;
-    padding-top: 10px;  /* Reduced top padding */
+    gap: 0.25rem;
+    padding-top: 10px;
 }
 
+/* Input group styling */
 .input-group {
-    width: 100%;
+    width: auto;  /* Allow natural width */
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.25rem;  /* Reduced from 0.4rem */
+    gap: 1rem;  /* Increased gap between label and input */
+    margin-bottom: 0.25rem;
 }
 
+/* Label styling */
 .input-group label {
-    width: 110px;  /* Reduced width */
+    width: 140px;  /* Fixed width for labels */
     text-align: right;
-    white-space: nowrap;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 0.8rem;
     color: #374151;
-    font-size: 0.9rem;
+    flex-shrink: 0;  /* Prevent label from shrinking */
 }
 
+/* Input field styling */
 .setup-input {
-    height: 32px;  /* Reduced from 40px */
-    padding: 0 12px;  /* Reduced from 16px */
-    font-size: 0.9rem;  /* Slightly smaller font */
+    width: 180px;  /* Fixed width for inputs */
+    height: 32px;
+    padding: 0 12px;
+    font-size: 0.9rem;
     border: 1px solid #D1D5DB;
     border-radius: 8px;
     outline: none;
     background-color: #FFFFFF;
-    flex: 1;
-    max-width: 180px;  /* Slightly reduced max-width */
+    flex-shrink: 0;  /* Prevent input from shrinking */
 }
 
 .setup-input:focus {
     border-color: #90CAF9;
     box-shadow: 0 0 0 2px rgba(144, 202, 249, 0.2);
+}
+
+.setup-input::placeholder {
+    font-weight: 500;
+    letter-spacing: 0.5px;
 }
 
 .preview-placeholder {
@@ -473,6 +494,8 @@ button:disabled,
     color: #9ca3af;
     font-size: 0.9rem;
     border-radius: 6px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .pages-container {
@@ -514,6 +537,8 @@ button:disabled,
     background-color: #FFFFFF;
     margin: 0;  /* Remove any default margins */
     padding: 0;  /* Remove any default padding */
+    font-weight: 500;
+    letter-spacing: 0.5px;
 }
 
 /* Style the bullet points and lists */

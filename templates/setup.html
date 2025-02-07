@@ -107,12 +107,7 @@
     <form onsubmit="sendRefinementRequest(event)" class="input-form">
         <div class="input-container">
             <input type="text" id="user_input" name="user_input" placeholder="Refine the analysis..." required>
-            <button class="submit-button" type="submit">
-                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-            </button>
+            <button class="submit-button" type="submit">➜</button>
         </div>
     </form>
 
@@ -345,9 +340,15 @@
             const img = resultGroup.querySelector('.preview-image');
             const fileId = img.id.replace('preview_', '');
             
-            // Get current page from data attribute or default to 0
+            // Get current page and total pages from data attributes
             let currentPage = parseInt(img.dataset.currentPage || 0);
+            let totalPages = parseInt(img.dataset.totalPages || 0);
             let newPage = currentPage + direction;
+            
+            // Validate the new page number
+            if (newPage < 0 || newPage >= totalPages) {
+                return; // Don't proceed if out of bounds
+            }
             
             // Get original filename from the result group
             const filenameElement = resultGroup.querySelector('.filename');
@@ -370,19 +371,13 @@
                         img.dataset.currentPage = newPage;
                         img.dataset.totalPages = data.total_pages;
                         
-                        // Always enable both buttons first
+                        // Update navigation buttons
                         const prevButton = resultGroup.querySelector('.prev-button');
                         const nextButton = resultGroup.querySelector('.next-button');
-                        prevButton.disabled = false;
-                        nextButton.disabled = false;
                         
-                        // Then disable if at limits
-                        if (newPage <= 0) {
-                            prevButton.disabled = true;
-                        }
-                        if (newPage >= data.total_pages - 1) {
-                            nextButton.disabled = true;
-                        }
+                        // Enable/disable buttons based on page bounds
+                        prevButton.disabled = newPage <= 0;
+                        nextButton.disabled = newPage >= totalPages - 1;
                     }
                 })
                 .catch(error => {

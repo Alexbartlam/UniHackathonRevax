@@ -20,3 +20,9 @@ scipy
 Flask==3.0.0
 python-pptx==0.6.21
 numpy==1.24.3
+gunicorn
+Werkzeug==3.0.1
+click==8.1.7
+itsdangerous==2.1.2
+Jinja2==3.1.2
+MarkupSafe==2.1.3

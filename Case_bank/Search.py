@@ -8,9 +8,11 @@ from mistralai import Mistral
 import time
 import random
 
-# Define search weight parameters
+# Define search parameters
 PERCENTAGE_FRONT = 0.7  # 70% weight for first page
 PERCENTAGE_REST = 0.3   # 30% weight for rest of document
+MAX_PAGES_TO_CONSIDER = 3  # Maximum number of pages to even look at
+SIMILARITY_THRESHOLD = 0.05  # Only include pages within 5% of the best match
 INTERNAL_PAGES_TO_RETURN = 3  # Number of most relevant pages to return per file
 
 def log_debug(message):
@@ -121,6 +123,56 @@ def deep_file_search(file_name, embeddings, query_embedding, prompt="Structure i
     # Return top N most relevant pages
     return file_pages[:INTERNAL_PAGES_TO_RETURN]
 
+def filter_similar_pages(pages):
+    """
+    Filter pages to return only those within 5% of the best match.
+    Only considers up to 3 pages, but returns fewer if they don't meet the threshold.
+    Ensures no duplicate slide numbers.
+    """
+    if not pages:
+        return []
+    
+    # First, deduplicate by slide number
+    seen_slides = set()
+    unique_pages = []
+    for page in pages:
+        slide_num = page['slide_number']
+        if slide_num not in seen_slides:
+            seen_slides.add(slide_num)
+            unique_pages.append(page)
+    
+    # Sort deduplicated pages by similarity score
+    sorted_pages = sorted(unique_pages, key=lambda x: x['similarity'], reverse=True)
+    
+    # Only consider up to MAX_PAGES_TO_CONSIDER pages
+    top_pages = sorted_pages[:MAX_PAGES_TO_CONSIDER]
+    
+    if not top_pages:
+        return []
+    
+    # Get the highest similarity score
+    top_similarity = top_pages[0]['similarity']
+    
+    # Only keep pages that are within the threshold of the top similarity
+    similar_pages = [
+        page for page in top_pages 
+        if (top_similarity - page['similarity']) <= SIMILARITY_THRESHOLD
+    ]
+    
+    return similar_pages
+
+def process_search_results(results):
+    """Process search results to deduplicate and filter pages."""
+    processed_results = []
+    
+    for result in results:
+        # Create a copy of the result with filtered pages
+        processed_result = result.copy()
+        processed_result['pages'] = filter_similar_pages(result['pages'])
+        processed_results.append(processed_result)
+    
+    return processed_results
+
 def search(query_dict):
     """Two-stage search process."""
     try:
@@ -213,7 +265,10 @@ def search(query_dict):
             log_debug(f"Formatted results for {file_name}: {json.dumps(file_results, indent=2)}")
         
         log_debug(f"Completed two-stage search with {len(detailed_results)} files")
-        return detailed_results
+
+        # Before returning results, filter and deduplicate pages
+        results = process_search_results(detailed_results)
+        return results
 
     except Exception as e:
         log_debug(f"Search error: {str(e)}")

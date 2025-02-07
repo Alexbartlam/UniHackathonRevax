@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revax AI - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="branding">Revax AI</div>
+    <div class="login-container">
+        <form method="POST" action="{{ url_for('login') }}">
+            <input type="password" name="password" placeholder="Enter password" required>
+            <button type="submit" class="primary-button">Login</button>
+            {% if error %}
+            <p class="error">{{ error }}</p>
+            {% endif %}
+        </form>
+    </div>
+</body>
+</html> 

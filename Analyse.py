@@ -31,7 +31,11 @@ Setup Information:
 
 - Establishing the aquisition structure:
   - A, B, C, D, ....
-Steps:
+
+- Overview: 
+  - (Text - Paragraph)
+  
+- Steps:
   - 1: (Text)
   - 2: (Text)
     ...

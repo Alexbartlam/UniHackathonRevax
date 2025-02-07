@@ -1,4 +1,4 @@
-from flask import Flask, request, session, jsonify, render_template, url_for
+from flask import Flask, request, session, jsonify, render_template, url_for, redirect
 from datetime import timedelta
 import json
 import os
@@ -15,6 +15,7 @@ import fitz
 from io import BytesIO
 import base64
 from mistralai import Mistral  # Add this import at the top
+from functools import wraps
 
 # Configure logging
 logging.basicConfig(
@@ -24,8 +25,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
-app.secret_key = 'your-secret-key-here'  # Replace with secure key
+app.secret_key = os.urandom(24)  # Required for session management
 app.permanent_session_lifetime = timedelta(hours=1)
+app.config['PASSWORD'] = 'your-password-here'  # Change this to your desired password
 
 # Store chat managers for each session
 chat_managers = {}
@@ -121,12 +123,39 @@ def health_check():
     """Basic health check endpoint"""
     return jsonify({"status": "healthy"})
 
+# Define login_required decorator BEFORE any routes that use it
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Login routes
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        if request.form['password'] == app.config['PASSWORD']:
+            session['logged_in'] = True
+            return redirect(url_for('home'))
+        return render_template('login.html', error='Invalid password')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
+
+# Protected routes
 @app.route('/')
+@login_required
 def home():
     logger.debug("Home route accessed")
     return render_template('index.html')
 
 @app.route('/setup')
+@login_required
 def setup():
     logger.debug("Setup route accessed")
     return render_template('setup.html')

@@ -362,6 +362,7 @@ button:disabled,
     border: none;
     cursor: pointer;
     flex-shrink: 0;
+    transition: transform 0.2s ease;
 }
 
 .reset-button {
@@ -374,9 +375,11 @@ button:disabled,
 }
 
 /* SVG Icons */
-.submit-button svg, .reset-button svg {
-    width: 20px;
-    height: 20px;
+.submit-button svg {
+    width: 24px;  /* Increased from 20px */
+    height: 24px;  /* Increased from 20px */
+    stroke: #374151;
+    stroke-width: 2.5;  /* Made stroke thicker */
 }
 
 /* Scrollbar Styling */
@@ -680,4 +683,35 @@ button {
 .secondary-button:hover,
 button:hover {
     background-color: #E5E7EB !important;  /* Slightly darker off-white */
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+.login-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 300px;
+}
+
+.login-container input {
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.login-container .error {
+    color: #dc3545;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.submit-button:hover {
+    transform: translateX(2px);
+    background-color: #E5E7EB;
 }

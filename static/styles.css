@@ -129,7 +129,7 @@ button:disabled,
 
 /* Setup Page Specific Styles */
 .main-content {
-    width: 40%;  /* Reduced from 50% */
+    width: 40%;
     height: calc(100vh - 50px);
     margin-top: 50px;
     display: flex;
@@ -253,9 +253,9 @@ button:disabled,
 .chat-top {
     position: fixed;
     right: 0;
-    top: 50px;  /* Keep this the same */
+    top: 50px;
     width: 60%;
-    height: calc(100vh - 140px);  /* Adjusted to use viewport height */
+    height: calc(100vh - 140px);
     background: white;
     margin: 0;
     padding: 20px;
@@ -591,127 +591,300 @@ button:disabled,
     letter-spacing: 2px;
 }
 
-/* Adjust main content to account for banner */
-.main-content {
-    width: 40%;  /* Reduced from 50% */
-    height: calc(100vh - 50px);
-    margin-top: 50px;
+/* Landing Page Styles */
+.landing-page {
+    margin: 0;
+    padding: 0;
+    background-color: #FFFFFF;
+    color: #1a1a1a;
+    overflow-x: hidden;
+}
+
+/* Navigation */
+.nav-bar {
+    height: 50px;
+    width: 100%;
+    background: #c6d2f0;  /* Deep blue */
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #1a237e;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+}
+
+.cta-button {
+    padding: 0.5rem 1.5rem;
+    background: #E3F2FD;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #1a237e;
+    font-weight: 500;
+}
+
+.cta-button:hover {
+    background: #BBDEFB;
+}
+
+/* Hero Section */
+.hero {
+    padding-top: 80px; /* Account for fixed nav */
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #E3F2FD 100%);
+    padding-bottom: 2rem;
+}
+
+.hero-content {
+    max-width: 800px;
+    padding: 0 2rem;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    color: #1a237e;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: #4a5568;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.primary-cta {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: #1a237e;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.primary-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Solution Features Section */
+.solution-features {
+    padding: 4rem 5%;
+    background: white;
+}
+
+.feature-container {
+    max-width: 1200px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
+    gap: 3rem;
+}
+
+.feature-item {
+    padding: 2rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.feature-item h2 {
+    color: #1a237e;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+}
+
+.feature-item ul {
+    list-style: none;
     padding: 0;
-    position: fixed;
+    margin: 0;
+}
+
+.feature-item li {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    position: relative;
+    line-height: 1.6;
+    color: #4a5568;
+}
+
+.feature-item li::before {
+    content: "•";
+    position: absolute;
     left: 0;
-    background-color: #FFFFFF;
+    color: #1a237e;
 }
 
-/* Adjust chat area for banner */
-.chat-top {
-    height: calc(100vh - 120px);  /* Adjusted to account for smaller input form */
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .feature-item {
+        padding: 1.5rem;
+    }
+    
+    .feature-item h2 {
+        font-size: 1.75rem;
+    }
 }
 
-.input-form {
-    bottom: 0;
-}
-
-/* Main containers */
-.main-content,
-.top-box,
-.bottom-box,
-.chat-top,
-.chat-bottom,
-.input-form,
-.result-card,
-.filename-box,
-.search-results,
-.setup-inputs {
-    background-color: #FFFFFF;
-}
-
-/* Ensure chat areas are white */
-#response_box_top,
-#response_box_bottom {
-    background-color: #FFFFFF;
-}
-
-/* Result cards and boxes */
-.result-card,
-.filename-box {
+/* Reset and base styles */
+body.landing-page {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;  /* Set viewport width */
     background: #FFFFFF;
-    border: 1px solid #dee2e6;
+    overflow-x: hidden;  /* Prevent horizontal scrolling */
 }
 
-/* Input areas */
-.setup-input {
-    background-color: #FFFFFF;
-}
-
-/* Analysis results area */
-.analysis-results {
-    background-color: #FFFFFF;
-}
-
-/* Add placeholder styles */
-.placeholder {
-    opacity: 0.5;
-}
-
-.page-info {
-    color: #9ca3af;
-}
-
-/* Make all buttons consistent with off-white shade */
-.setup-submit, 
-.analyze-button,
-.nav-button,
-.input-form button,
-.submit-button,
-.primary-button,
-.secondary-button,
-button {
-    background-color: #F8F9FA !important;  /* Light off-white */
-    color: #374151 !important;  /* Dark gray text */
-    border: 1px solid #E5E7EB !important;
-}
-
-/* Hover state for all buttons */
-.setup-submit:hover, 
-.analyze-button:hover,
-.nav-button:hover,
-.input-form button:hover,
-.submit-button:hover,
-.primary-button:hover,
-.secondary-button:hover,
-button:hover {
-    background-color: #E5E7EB !important;  /* Slightly darker off-white */
-}
-
-.login-container {
+body.landing-page main {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 2rem;
+    height: calc(100vh - 50px);
+    width: 100%;
+    padding: 1rem;
+    gap: 1rem;
 }
 
-.login-container form {
+body.landing-page .left-side,
+body.landing-page .right-side {
+    width: 50%;
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    width: 300px;
 }
 
-.login-container input {
-    padding: 0.5rem;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
+body.landing-page .problem,
+body.landing-page .solution,
+body.landing-page .feature {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    flex: 1;
 }
 
-.login-container .error {
-    color: #dc3545;
-    text-align: center;
-    margin-top: 0.5rem;
+/* Landing page nav styles */
+body.landing-page .nav-bar {
+    height: 50px;
+    width: 100vw;  /* Use viewport width */
+    background: #9ab3ff;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;  /* Include padding in width calculation */
 }
 
-.submit-button:hover {
-    transform: translateX(2px);
-    background-color: #E5E7EB;
+body.landing-page .nav-logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: rgb(0, 0, 0);
+}
+
+body.landing-page .cta-button {
+    padding: 0.5rem 1.5rem;
+    background: #E3F2FD;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #1a237e;
+    font-weight: 500;
+}
+
+body.landing-page .cta-button:hover {
+    background: #BBDEFB;
+}
+
+/* Landing page content styles */
+body.landing-page .problem h1,
+body.landing-page .solution h1 {
+    color: #1a237e;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+}
+
+body.landing-page .problem-item {
+    margin-bottom: 1.5rem;
+}
+
+body.landing-page .problem-item h2 {
+    color: #2c3e50;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+body.landing-page .problem-item p,
+body.landing-page .solution p {
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+body.landing-page .feature h2 {
+    color: #1a237e;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+body.landing-page .feature ul {
+    list-style: none;
+    padding: 0;
+}
+
+body.landing-page .feature li {
+    margin-bottom: 0.75rem;
+    padding-left: 1.5rem;
+    position: relative;
+    line-height: 1.6;
+    color: #4a5568;
+}
+
+body.landing-page .feature li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #1a237e;
 }

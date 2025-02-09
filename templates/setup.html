@@ -247,9 +247,9 @@
                         
                         // Use the simplified filename format with explicit transformation steps
                         let filename = result.file_name;
-                        filename = filename.replace(" copy", "");
-                        filename = filename.replace(/ /g, "_");
-                        filename = filename + ".pdf";  // Ensure .pdf extension
+                        filename = filename.replace("pptx", "pdf");
+                        //filename = filename.replace(/ /g, "_");
+                        //filename = filename + ".pdf";  // Ensure .pdf extension
                         
                         console.log("Final filename for fetch:", filename); // Log final filename
                         console.log("Full fetch URL:", `/get_pdf_page/${encodeURIComponent(filename)}/0`); // Log full URL
@@ -353,9 +353,8 @@
             // Get original filename from the result group
             const filenameElement = resultGroup.querySelector('.filename');
             let filename = filenameElement.textContent;
-            filename = filename.replace(" copy", "");
-            filename = filename.replace(/ /g, "_");
-            filename = filename + ".pdf";
+            // Use the same transformation as in the initial preview load
+            filename = filename.replace("pptx", "pdf");
 
             // Fetch new page
             fetch(`/get_pdf_page/${encodeURIComponent(filename)}/${newPage}`)

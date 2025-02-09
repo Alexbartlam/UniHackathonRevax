@@ -6,15 +6,62 @@
     <title>Revax AI</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
-    <div class="branding">Revax AI</div>
-    <div class="button-container">
-        <button class="primary-button" onclick="window.location.href='/setup'">Setup</button>
-        <button class="secondary-button">Funding</button>
-        <button class="secondary-button">Acquisition</button>
-        <button class="secondary-button">Management Incentives</button>
-        <button class="secondary-button">Cash Repatriation</button>
-        <button class="secondary-button">Exit</button>
-    </div>
+<body class="landing-page">
+    <nav class="nav-bar">
+        <div class="nav-logo">REVAX</div>
+        <div class="nav-links">
+            <a href="/setup" class="cta-button">View Demo</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="left-side">
+            <div class="problem">
+                <h1>The Problem</h1>
+                <div class="problem-item">
+                    <h2>Inefficient knowledge exchange</h2>
+                    <p>M&A tax advisors have poor access to existing in-house knowledge: Often emailing between teams to exchange documents.</p>
+                </div>
+                <div class="problem-item">
+                    <h2>Underutilization of professionals</h2>
+                    <p>Professionals spend hundreds of hours manually rewriting advice from scratch, and tax legislation changes often make past work redundant or prone to causing mistakes.</p>
+                </div>
+                <div class="problem-item">
+                    <h2>Profits are stalling</h2>
+                    <p>Profits across the Big 4 and other professional service firms are stagnant or falling.</p>
+                </div>
+            </div>
+            <div class="solution">
+                <h1>The Solution</h1>
+                <p>A targeted end-to-end workflow that increases the fluidity of in-house knowledge, while automating manual processes in M&A tax.</p>
+            </div>
+        </div>
+        
+        <div class="right-side">
+            <div class="feature">
+                <h2>1. Knowledge bank</h2>
+                <ul>
+                    <li>Securely stores embedded tax deliverables.</li>
+                    <li>Controllable and accountable access across teams enhancing regulatory compliance.</li>
+                    <li>AI-generated metadata to enhance findability.</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h2>2. RAG</h2>
+                <ul>
+                    <li>Retrieves firm-wide tax insights and client-reviewed analysis instantly.</li>
+                    <li>Prevents unnecessary exposure of non-relevant documents.</li>
+                    <li>Enables access to files wider than a professional's network.</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h2>3. LLM</h2>
+                <ul>
+                    <li>AI-powered drafting that leverages in-house knowledge found in RAG.</li>
+                    <li>Latest frontier models, trained on current legislation and industry best practices, enable refinement of legacy cases.</li>
+                </ul>
+            </div>
+        </div>
+    </main>
 </body>
 </html>

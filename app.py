@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.urandom(24)  # Required for session management
 app.permanent_session_lifetime = timedelta(hours=1)
-app.config['PASSWORD'] = 'your-password-here'  # Change this to your desired password
+app.config['PASSWORD'] = 'Revax@2025'  # Change this to your desired password
 
 # Store chat managers for each session
 chat_managers = {}

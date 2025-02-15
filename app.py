@@ -19,6 +19,7 @@ from functools import wraps
 
 # Configure logging
 logging.basicConfig(
+    filename='/var/log/revax/flask.log',
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
@@ -33,40 +34,70 @@ app.config['PASSWORD'] = 'Revax@2025'  # Change this to your desired password
 chat_managers = {}
 
 def cleanup_old_sessions():
-    """Clean up session files older than 1 hour"""
+    """
+    Clean up session files older than 1 hour to prevent storage bloat.
+    
+    This function:
+    1. Scans the /tmp directory for conversation state files
+    2. Checks modification time of each file
+    3. Removes files older than 1 hour
+    4. Logs any errors encountered during cleanup
+    """
     try:
         current_time = time.time()
         for filename in os.listdir('/tmp'):
             if filename.startswith('conversation_state_'):
                 filepath = os.path.join('/tmp', filename)
-                if os.path.getmtime(filepath) < current_time - 3600:  # 1 hour
+                # Remove files older than 1 hour (3600 seconds)
+                if os.path.getmtime(filepath) < current_time - 3600:
                     os.remove(filepath)
     except Exception as e:
         app.logger.error(f"Session cleanup error: {str(e)}")
 
 @app.before_request
 def before_request():
-    """Run before each request"""
-    # Make sessions permanent but with timeout
-    session.permanent = True
-    # Clean up old session files periodically
+    """
+    Middleware that runs before each request is processed.
+    
+    Performs:
+    1. Sets session as permanent with configured timeout
+    2. Randomly triggers old session cleanup (10% chance per request)
+    """
+    session.permanent = True  # Enable session timeout
     if random.random() < 0.1:  # 10% chance to run cleanup
         cleanup_old_sessions()
 
 @app.route('/chat', methods=['POST'])
 def chat():
+    """
+    Handle chat interactions between user and AI.
+    
+    Process:
+    1. Extracts message and session ID from request
+    2. Creates or retrieves chat manager for session
+    3. Sets context if available in session
+    4. Processes message and returns AI response
+    
+    Returns:
+        JSON response containing:
+        - AI message
+        - Session ID
+        - Error information (if applicable)
+    """
     try:
+        # Extract data from request
         data = request.get_json()
         user_message = data.get('message', '')
         session_id = data.get('session_id')
         
         logger.debug(f"Chat request received - Session ID: {session_id}, Message: {user_message}")
 
+        # Generate new session ID if none provided
         if not session_id:
             session_id = str(uuid.uuid4())
             logger.debug(f"Created new session ID: {session_id}")
         
-        # Get or create chat manager for this session
+        # Initialize or retrieve chat manager for session
         if session_id not in chat_managers:
             logger.debug(f"Creating new chat manager for session {session_id}")
             chat_managers[session_id] = ChatManager()
@@ -78,7 +109,7 @@ def chat():
                     session.get('search_results')
                 )
         
-        # Process the message
+        # Process message and return response
         chat_manager = chat_managers[session_id]
         logger.debug(f"Chat manager has analysis: {bool(chat_manager.analysis_results)}")
         response = chat_manager.process_message(user_message)
@@ -96,6 +127,15 @@ def chat():
 
 @app.route('/reset-chat', methods=['POST'])
 def reset_chat():
+    """
+    Reset a chat session while maintaining context.
+    
+    Process:
+    1. Gets session ID from request
+    2. Finds corresponding chat manager
+    3. Resets conversation history
+    4. Returns confirmation or error message
+    """
     try:
         data = request.get_json()
         session_id = data.get('session_id')
@@ -120,11 +160,22 @@ def reset_chat():
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Basic health check endpoint"""
+    """
+    Basic health check endpoint for monitoring.
+    Returns simple status message to confirm application is running.
+    """
     return jsonify({"status": "healthy"})
 
 # Define login_required decorator BEFORE any routes that use it
 def login_required(f):
+    """
+    Decorator to protect routes that require authentication.
+    
+    Functionality:
+    1. Checks if user is logged in via session
+    2. Redirects to login page if not authenticated
+    3. Allows access to route if authenticated
+    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'logged_in' not in session:
@@ -135,6 +186,15 @@ def login_required(f):
 # Login routes
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Handle user login.
+    
+    GET: Display login form
+    POST: Process login attempt
+    - Validates password
+    - Sets session if successful
+    - Shows error if invalid
+    """
     if request.method == 'POST':
         if request.form['password'] == app.config['PASSWORD']:
             session['logged_in'] = True
@@ -144,6 +204,10 @@ def login():
 
 @app.route('/logout')
 def logout():
+    """
+    Handle user logout.
+    Removes session data and redirects to login page.
+    """
     session.pop('logged_in', None)
     return redirect(url_for('login'))
 
@@ -151,12 +215,14 @@ def logout():
 @app.route('/')
 @login_required
 def home():
+    """Main application page, requires authentication."""
     logger.debug("Home route accessed")
     return render_template('index.html')
 
 @app.route('/setup')
 @login_required
 def setup():
+    """Setup page for configuring case analysis, requires authentication."""
     logger.debug("Setup route accessed")
     return render_template('setup.html')
 

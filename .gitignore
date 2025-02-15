@@ -1,0 +1,12 @@
+# Log files
+/var/log/revax/*
+*.log
+nohup.out
+
+# Debug/test files
+/tests/debug_setup_data.json
+
+# System files
+.DS_Store
+__pycache__/
+*.pyc 

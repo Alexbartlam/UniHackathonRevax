@@ -87,6 +87,6 @@ Notes:
     return "Error: Maximum retries exceeded"
 
 if __name__ == "__main__":
-    setup_data = load_setup_data('html/debug_setup_data.json')
+    setup_data = load_setup_data('tests/debug_setup_data.json')
     bullet_points = generate_bullet_points(setup_data)
     print(bullet_points) 
